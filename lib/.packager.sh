@@ -48,15 +48,15 @@ for file in `find $DELIVER_FOLDER -type f`; do
     update_env ${!ENV_SUFFIX} $file
 done
 
-
-for file in `find $DELIVER_FOLDER -name *${!ENV_SUFFIX}*`; do
-    [[ $verbose ]] && echo "processing file '${file}'";
-    mv $file `echo $file | sed s/${!ENV_SUFFIX}//g`;
-
-    #Remove all __ENV__ files
-    for i in ${environments_list[*]}; do
-        env_suffix=environments_${i}_suffix
-        rm `echo $file${!env_suffix}`;
+#Remove all __ENV__ files, except current ENV_SUFFIX
+for i in ${environments_list[*]}; do
+    env_suffix=environments_${i}_suffix
+    for file in `find $DELIVER_FOLDER -name *${!env_suffix}*`; do
+        if [ ${!ENV_SUFFIX} = ${!env_suffix} ]; then
+            mv $file `echo $file | sed s/${!ENV_SUFFIX}//g`;
+        else
+            rm `echo $file`;
+        fi
     done;
 done
 
